@@ -1,0 +1,42 @@
+services:
+  mysql:
+    build: 
+      context: .
+      dockerfile: ./configSql/DockerFile
+    image: mysql
+    restart: always
+    container_name: mysql
+    environment:
+      MYSQL_ROOT_PASSWORD: 1256-8742
+      MYSQL_DATABASE: students
+    ports:
+      - "3306:3306"
+    volumes:
+      - mysql-data:/var/lib/mysql
+      - ./initial_config.sql:/docker-entrypoint-initdb.d/initial_config.sql
+    networks:
+      - my-red
+
+  node:
+    build: 
+      context: .
+      dockerfile: DockerFile2
+    container_name: node-app
+    ports:
+      - "3000:3000"
+    depends_on:
+      - mysql
+    environment:
+      NODE_ENV: development
+      MYSQL_HOST: mysql
+      MYSQL_USER: studentAdmin
+      MYSQL_PASSWORD: 125&1333-
+      MYSQL_DATABASE: students
+    networks:
+      - my-red
+
+volumes:
+  mysql-data:
+
+networks:
+  my-red:

@@ -1,0 +1,12 @@
+# Usar la imagen oficial de MySQL como base
+FROM mysql:latest
+
+# Copiar el script de inicialización al contenedor
+COPY ../initial_config.sql /docker-entrypoint-initdb.d/
+
+# Establecer variables de entorno para proporcionar la contraseña al script de inicialización
+ENV MYSQL_ROOT_PASSWORD=1256-8742
+
+
+# Exponer el puerto de MySQL
+EXPOSE 3306

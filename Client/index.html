@@ -1,0 +1,195 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Estudiantes</title>
+  <style>
+    body {
+      font-family: Arial, sans-serif;
+      margin: 0;
+      padding: 20px;
+    }
+    h1 {
+      margin-bottom: 20px;
+    }
+    form {
+      margin-bottom: 20px;
+    }
+    input, button {
+      padding: 8px;
+      margin-right: 10px;
+    }
+    button {
+      cursor: pointer;
+    }
+    table {
+      border-collapse: collapse;
+      width: 100%;
+    }
+    th, td {
+      border: 1px solid #ddd;
+      padding: 8px;
+      text-align: left;
+    }
+  </style>
+</head>
+<body>
+  <h1>Estudiantes</h1>
+  <form id="studentForm">
+    <input type="text" id="firstName" placeholder="Nombre" required>
+    <input type="text" id="lastName" placeholder="Apellido" required>
+    <button type="submit" id="submitBtn">Crear Estudiante</button>
+    <button type="button" id="cancelBtn" style="display: none;">Cancelar</button>
+  </form>
+  <table id="studentTable">
+    <thead>
+      <tr>
+        <th>ID</th>
+        <th>Nombre</th>
+        <th>Apellido</th>
+        <th>Acciones</th>
+      </tr>
+    </thead>
+    <tbody></tbody>
+  </table>
+
+  <script>
+    document.addEventListener('DOMContentLoaded', () => {
+      const form = document.getElementById('studentForm');
+      const tableBody = document.querySelector('#studentTable tbody');
+      const API_URL = 'http://localhost:3000/students';
+      const firstNameInput = document.getElementById('firstName');
+      const lastNameInput = document.getElementById('lastName');
+      const submitBtn = document.getElementById('submitBtn');
+      const cancelBtn = document.getElementById('cancelBtn');
+
+      let isEditing = false;
+      let currentStudentId = null;
+      let students = [];
+
+      // Función para cargar todos los estudiantes en la tabla
+      const loadStudents = async () => {
+        try {
+          const response = await fetch(API_URL);
+          students = await response.json();
+          tableBody.innerHTML = '';
+          students.forEach(student => {
+            const row = document.createElement('tr');
+            row.innerHTML = `
+              <td>${student.id}</td>
+              <td>${student.firstName}</td>
+              <td>${student.lastName}</td>
+              <td>
+                <button class="edit-btn">Editar</button>
+                <button class="delete-btn">Eliminar</button>
+              </td>
+            `;
+            tableBody.appendChild(row);
+
+            // Agregar event listeners a los botones
+            const editBtn = row.querySelector('.edit-btn');
+            const deleteBtn = row.querySelector('.delete-btn');
+
+            editBtn.addEventListener('click', () => editStudent(student.id));
+            deleteBtn.addEventListener('click', () => deleteStudent(student.id));
+          });
+        } catch (error) {
+          console.error('Error al cargar estudiantes:', error);
+        }
+      };
+
+      // Función para crear un estudiante
+      const createStudent = async (firstName, lastName, id = null) => {
+        try {
+          const response = id
+            ? await fetch(`${API_URL}/${id}`, {
+                method: 'PUT',
+                headers: {
+                  'Content-Type': 'application/json'
+                },
+                body: JSON.stringify({ firstName, lastName })
+              })
+            : await fetch(API_URL, {
+                method: 'POST',
+                headers: {
+                  'Content-Type': 'application/json'
+                },
+                body: JSON.stringify({ firstName, lastName })
+              });
+
+          if (response.ok) {
+            loadStudents();
+            resetForm();
+          } else {
+            console.error('Error al crear/editar estudiante:', response.status);
+          }
+        } catch (error) {
+          console.error('Error al crear/editar estudiante:', error);
+        }
+      };
+
+      // Función para editar un estudiante
+      const editStudent = (id) => {
+        isEditing = true;
+        currentStudentId = id;
+        const student = students.find(student => student.id === id);
+        firstNameInput.value = student.firstName;
+        lastNameInput.value = student.lastName;
+        submitBtn.textContent = 'Guardar Cambios';
+        cancelBtn.style.display = 'inline-block';
+      };
+
+      // Función para eliminar un estudiante
+      const deleteStudent = async (id) => {
+        try {
+          const confirmed = confirm('¿Estás seguro de eliminar este estudiante?');
+          if (confirmed) {
+            const response = await fetch(`${API_URL}/${id}`, {
+              method: 'DELETE'
+            });
+            if (response.ok) {
+              loadStudents();
+            } else {
+              console.error('Error al eliminar estudiante:', response.status);
+            }
+          }
+        } catch (error) {
+          console.error('Error al eliminar estudiante:', error);
+        }
+      };
+
+      const resetForm = () => {
+        isEditing = false;
+        currentStudentId = null;
+        firstNameInput.value = '';
+        lastNameInput.value = '';
+        submitBtn.textContent = 'Crear Estudiante';
+        cancelBtn.style.display = 'none';
+      };
+
+      // Escuchar el envío del formulario
+      form.addEventListener('submit', (event) => {
+        event.preventDefault();
+        const firstName = firstNameInput.value.trim();
+        const lastName = lastNameInput.value.trim();
+        if (firstName && lastName) {
+          if (isEditing) {
+            createStudent(firstName, lastName, currentStudentId);
+          } else {
+            createStudent(firstName, lastName);
+          }
+        } else {
+          alert('Por favor, ingresa tanto el nombre como el apellido del estudiante.');
+        }
+      });
+
+      // Escuchar el clic en el botón de cancelar
+      cancelBtn.addEventListener('click', resetForm);
+
+      // Cargar estudiantes al cargar la página
+      loadStudents();
+    });
+  </script>
+</body>
+</html>
