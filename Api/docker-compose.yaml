@@ -2,41 +2,41 @@ services:
   mysql:
     build: 
       context: .
-      dockerfile: ./configSql/DockerFile
+      dockerfile: ./configSql/DockerFile #Ubicacion de docker file
     image: mysql
     restart: always
     container_name: mysql
     environment:
-      MYSQL_ROOT_PASSWORD: 1256-8742
-      MYSQL_DATABASE: students
+      MYSQL_ROOT_PASSWORD: 1256-8742 #Clave para usuario root
+      MYSQL_DATABASE: students #Base de datos a crear
     ports:
-      - "3306:3306"
+      - "3306:3306" # puerto a exponer
     volumes:
       - mysql-data:/var/lib/mysql
-      - ./initial_config.sql:/docker-entrypoint-initdb.d/initial_config.sql
+      - ./initial_config.sql:/docker-entrypoint-initdb.d/initial_config.sql #carpeta donde se almacenara el sql que crea el usuario
     networks:
-      - my-red
+      - my-red # nombre de red
 
   node:
     build: 
       context: .
-      dockerfile: DockerFile2
+      dockerfile: DockerFile2 #Ubicacion de docker file
     container_name: node-app
     ports:
-      - "3000:3000"
+      - "3000:3000" #Puerto a exponer
     depends_on:
-      - mysql
-    environment:
-      NODE_ENV: development
+      - mysql #Establecer dependencia de imagen mysql
+    environment: # establecer variables de entorno
+      NODE_ENV: development 
       MYSQL_HOST: mysql
       MYSQL_USER: studentAdmin
       MYSQL_PASSWORD: 125&1333-
       MYSQL_DATABASE: students
     networks:
-      - my-red
+      - my-red #configurar nombre de red en este caso es el mismo para ambas imagenes
 
 volumes:
-  mysql-data:
+  mysql-data: # definir un volumen para mysql
 
 networks:
-  my-red:
+  my-red: #definir nombre de red

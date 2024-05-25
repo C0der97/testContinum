@@ -5,22 +5,24 @@ const cors = require('cors');
 const app = express();
 const port = process.env.PORT || 3000;
 
-
+// nombre de base de datos, nombre de usuario, contraseña de usuario, en el host se coloca el nombre de la imagen
+// de mysql en este caso se llama igual, y en dialect que motor de bd se usara
 const sequelize = new Sequelize('students', 'studentAdmin', '125&1333-', {
   host: 'mysql',
   dialect: 'mysql'
 });
 
-
+//se establece configuracion de cors
 app.use(
   cors({
     origin: "https://special-space-fishstick-j4gx4pw4pwvh5jx-31459.app.github.dev"
   })
 );
 
+//se establece uso de json
 app.use(express.json());
 
-
+// se define modelo o tabla Students
 const Student = sequelize.define('Students', {
   firstName: {
     type: Sequelize.STRING,
@@ -32,7 +34,7 @@ const Student = sequelize.define('Students', {
 });
 
 
-
+// endpoint para recibir la creación de un estudiante
 app.post('/students', async (req, res) => {
   const { firstName, lastName } = req.body;
   try {
@@ -44,6 +46,8 @@ app.post('/students', async (req, res) => {
   }
 });
 
+
+// endpoint para recibir la obtención de los estudiantes
 app.get('/students', async (req, res) => {
   try {
     const students = await Student.findAll();
@@ -69,6 +73,7 @@ app.get('/students/:id', async (req, res) => {
   }
 });
 
+// endpoint para recibir la ediccion de un estudiante por id
 app.put('/students/:id', async (req, res) => {
   const id = req.params.id;
   const { firstName, lastName } = req.body;
@@ -87,6 +92,8 @@ app.put('/students/:id', async (req, res) => {
   }
 });
 
+
+// endpoint para recibir la eliminación de un estudiante por id
 app.delete('/students/:id', async (req, res) => {
   const id = req.params.id;
   try {
@@ -102,7 +109,7 @@ app.delete('/students/:id', async (req, res) => {
   }
 });
 
-
+// metodo de entrada de aplicación para crear tabla students
 app.get('/', async (req, res) => {
   sequelize.sync({ force: true })
   .then(() => {
@@ -114,7 +121,7 @@ app.get('/', async (req, res) => {
 
 });
 
-
+// escuchar en puerto
 app.listen(port, () => {
   console.log(`Server is running on port ${port}`);
 });
