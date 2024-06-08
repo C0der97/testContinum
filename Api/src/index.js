@@ -121,6 +121,11 @@ app.get('/', async (req, res) => {
 
 });
 
+
+app.get('/studentsquery/', async (req, res) => {
+    res.status(200).json({ msm: 'Por implementar' });
+});
+
 // escuchar en puerto
 app.listen(port, () => {
   console.log(`Server is running on port ${port}`);
