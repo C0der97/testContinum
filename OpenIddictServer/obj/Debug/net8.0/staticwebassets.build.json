@@ -1,0 +1,11 @@
+{
+  "Version": 1,
+  "Hash": "a3YnvqJout7f5wKmOAIVVxp6Maj4o9y9HV/uDwXJ6qE=",
+  "Source": "OpenIddictServer",
+  "BasePath": "_content/OpenIddictServer",
+  "Mode": "Default",
+  "ManifestType": "Build",
+  "ReferencedProjectsConfiguration": [],
+  "DiscoveryPatterns": [],
+  "Assets": []
+}
